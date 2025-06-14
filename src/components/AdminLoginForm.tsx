@@ -18,16 +18,36 @@ const AdminLoginForm: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Debug logging
+  useEffect(() => {
+    console.log('AdminLoginForm - user:', user);
+    console.log('AdminLoginForm - roleLoading:', roleLoading);
+    console.log('AdminLoginForm - hasAnyAdminRole():', hasAnyAdminRole());
+  }, [user, roleLoading, hasAnyAdminRole]);
+
   // Redirect if already authenticated and has admin role
   useEffect(() => {
-    if (user && !roleLoading && hasAnyAdminRole()) {
-      navigate('/admin');
+    if (user && !roleLoading) {
+      console.log('User is authenticated, checking roles...');
+      if (hasAnyAdminRole()) {
+        console.log('User has admin role, redirecting to /admin');
+        navigate('/admin');
+      } else {
+        console.log('User does not have admin role');
+        toast({
+          title: "Access Denied",
+          description: "You don't have admin privileges. Please contact your administrator.",
+          variant: "destructive",
+        });
+      }
     }
-  }, [user, hasAnyAdminRole, roleLoading, navigate]);
+  }, [user, hasAnyAdminRole, roleLoading, navigate, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    console.log('Attempting login with phone:', phoneNumber);
 
     if (!phoneNumber.startsWith('+')) {
       toast({
@@ -41,20 +61,24 @@ const AdminLoginForm: React.FC = () => {
 
     try {
       const { error } = await signIn(phoneNumber, password);
+      console.log('Sign in result:', { error });
+      
       if (error) {
+        console.error('Login error:', error);
         toast({
           title: "Login failed",
-          description: "Invalid credentials or insufficient privileges",
+          description: error.message || "Invalid credentials or insufficient privileges",
           variant: "destructive",
         });
       } else {
-        // Success will be handled by the useEffect above
+        console.log('Login successful, auth state should update automatically');
         toast({
           title: "Login successful",
           description: "Welcome to the admin system",
         });
       }
     } catch (error) {
+      console.error('Login exception:', error);
       toast({
         title: "Login error",
         description: "Please try again later",

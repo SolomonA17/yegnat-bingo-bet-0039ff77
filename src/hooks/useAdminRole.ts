@@ -17,9 +17,11 @@ export const useAdminRole = () => {
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   useEffect(() => {
+    console.log('useAdminRole - user changed:', user?.id);
     if (user) {
       fetchAdminRole();
     } else {
+      console.log('useAdminRole - no user, resetting state');
       setAdminRole(null);
       setIsAdmin(false);
       setIsCashier(false);
@@ -29,7 +31,13 @@ export const useAdminRole = () => {
   }, [user]);
 
   const fetchAdminRole = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('fetchAdminRole - no user');
+      return;
+    }
+
+    console.log('fetchAdminRole - fetching for user:', user.id);
+    setLoading(true);
 
     try {
       const { data, error } = await supabase
@@ -39,10 +47,16 @@ export const useAdminRole = () => {
         .eq('is_active', true)
         .single();
 
+      console.log('fetchAdminRole - query result:', { data, error });
+
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching admin role:', error);
         setAdminRole(null);
+        setIsAdmin(false);
+        setIsCashier(false);
+        setIsSuperAdmin(false);
       } else if (data) {
+        console.log('fetchAdminRole - user has role:', data.role);
         const mappedRole: AdminRole = {
           role: data.role,
           isActive: data.is_active
@@ -52,6 +66,7 @@ export const useAdminRole = () => {
         setIsCashier(data.role === 'cashier');
         setIsSuperAdmin(data.role === 'super_admin');
       } else {
+        console.log('fetchAdminRole - no role found for user');
         setAdminRole(null);
         setIsAdmin(false);
         setIsCashier(false);
@@ -69,12 +84,19 @@ export const useAdminRole = () => {
   };
 
   const hasAnyAdminRole = () => {
-    return isAdmin || isCashier || isSuperAdmin;
+    const result = isAdmin || isCashier || isSuperAdmin;
+    console.log('hasAnyAdminRole:', { isAdmin, isCashier, isSuperAdmin, result });
+    return result;
   };
 
   const canAccess = (requiredRoles: string[]) => {
-    if (!adminRole) return false;
-    return requiredRoles.includes(adminRole.role);
+    if (!adminRole) {
+      console.log('canAccess - no admin role');
+      return false;
+    }
+    const result = requiredRoles.includes(adminRole.role);
+    console.log('canAccess:', { requiredRoles, userRole: adminRole.role, result });
+    return result;
   };
 
   return {
