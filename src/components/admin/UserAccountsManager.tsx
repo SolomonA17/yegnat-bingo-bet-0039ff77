@@ -16,7 +16,6 @@ import { Badge } from '@/components/ui/badge';
 interface NewUserAccount {
   full_name: string;
   phone_number: string;
-  password: string;
   user_type: string;
   assigned_super_agent: string | null;
   initial_balance: string;
@@ -67,23 +66,24 @@ const UserAccountsManager = () => {
 
   const createUserAccountMutation = useMutation({
     mutationFn: async (newAccount: NewUserAccount) => {
-      // First create the auth user (this would typically be done through a secure endpoint)
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        phone: newAccount.phone_number,
-        password: newAccount.password,
-        user_metadata: {
+      // Create a record in the agents table first
+      const { data: agentData, error: agentError } = await supabase
+        .from('agents')
+        .insert([{
           full_name: newAccount.full_name,
-          phone_number: newAccount.phone_number
-        }
-      });
+          phone_number: newAccount.phone_number,
+          balance: parseFloat(newAccount.initial_balance) || 0
+        }])
+        .select()
+        .single();
 
-      if (authError) throw authError;
+      if (agentError) throw agentError;
 
-      // Then create the user account record
+      // Then create the user account record linked to the agent
       const { data, error } = await supabase
         .from('user_accounts')
         .insert([{
-          user_id: authData.user.id,
+          user_id: agentData.id, // Use the agent ID as the user_id
           user_type: newAccount.user_type,
           assigned_super_agent: newAccount.assigned_super_agent,
           balance: parseFloat(newAccount.initial_balance) || 0
@@ -99,7 +99,7 @@ const UserAccountsManager = () => {
       setIsDialogOpen(false);
       toast({
         title: "Success",
-        description: "User account created successfully",
+        description: "User account created successfully. Note: Authentication credentials will need to be set up separately.",
       });
     },
     onError: (error) => {
@@ -118,7 +118,6 @@ const UserAccountsManager = () => {
     createUserAccountMutation.mutate({
       full_name: formData.get('fullName') as string,
       phone_number: formData.get('phoneNumber') as string,
-      password: formData.get('password') as string,
       user_type: activeTab,
       assigned_super_agent: (formData.get('assignedSuperAgent') as string) || null,
       initial_balance: (formData.get('initialBalance') as string) || '0'
@@ -163,11 +162,6 @@ const UserAccountsManager = () => {
                 <label className="text-sm font-medium">Phone Number</label>
                 <Input name="phoneNumber" placeholder="+251XXXXXXXXX" required />
               </div>
-              
-              <div>
-                <label className="text-sm font-medium">Password</label>
-                <Input name="password" type="password" placeholder="Enter password" required />
-              </div>
 
               <div>
                 <label className="text-sm font-medium">User Type</label>
@@ -206,6 +200,12 @@ const UserAccountsManager = () => {
               <div>
                 <label className="text-sm font-medium">Initial Balance (ETB)</label>
                 <Input name="initialBalance" type="number" step="0.01" defaultValue="0" />
+              </div>
+
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800">
+                  <strong>Note:</strong> This creates the user record in the system. Authentication credentials (login access) will need to be set up separately through Supabase Auth.
+                </p>
               </div>
 
               <Button type="submit" className="w-full bg-ethiopian-green hover:bg-ethiopian-green/90">
