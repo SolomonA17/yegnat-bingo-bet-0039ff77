@@ -1,3 +1,4 @@
+
 import React from 'react';
 import NavigationBar from '@/components/NavigationBar';
 import EthiopianHeader from '@/components/EthiopianHeader';
@@ -6,6 +7,8 @@ import NumberDisplay from '@/components/NumberDisplay';
 import CalledNumbersList from '@/components/CalledNumbersList';
 import GameControls from '@/components/GameControls';
 import UserProfile from '@/components/UserProfile';
+import BingoCardIssuer from '@/components/BingoCardIssuer';
+import FloatingVerificationButton from '@/components/FloatingVerificationButton';
 import useBingoGame from '@/hooks/useBingoGame';
 
 const Index = () => {
@@ -30,7 +33,7 @@ const Index = () => {
       <div className="container mx-auto px-4 py-8">
         <EthiopianHeader />
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
           {/* Left Column - Bingo Card */}
           <div className="lg:col-span-1 fade-in">
             <div className="mb-6">
@@ -58,7 +61,7 @@ const Index = () => {
           </div>
 
           {/* Center Column - Game Display */}
-          <div className="lg:col-span-1 fade-in">
+          <div className="lg:col-span-2 fade-in">
             <NumberDisplay currentNumber={currentNumber} isAnimating={isAnimating} />
             
             <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
@@ -95,6 +98,11 @@ const Index = () => {
               onResetGame={resetGame}
               onGenerateNewCard={generateNewCard}
             />
+
+            {/* Card Issuer */}
+            <div className="mt-6">
+              <BingoCardIssuer />
+            </div>
           </div>
 
           {/* Right Column - Called Numbers */}
@@ -128,22 +136,28 @@ const Index = () => {
             <h3 className="text-xl font-bold text-ethiopian-dark mb-4 text-center">
               How to Play Ethiopian Bingo
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-ethiopian-dark/80">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm text-ethiopian-dark/80">
               <div className="text-center">
                 <div className="w-12 h-12 bg-ethiopian-green text-white rounded-full flex items-center justify-center mx-auto mb-2 font-bold">
                   1
                 </div>
-                <p><strong>Start the Game:</strong> Click "Start Game" to begin playing</p>
+                <p><strong>Get a Card:</strong> Issue a new Bingo card to join the game</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-ethiopian-yellow text-white rounded-full flex items-center justify-center mx-auto mb-2 font-bold">
                   2
                 </div>
-                <p><strong>Listen for Numbers:</strong> Click "Call Next Number" to hear the next number</p>
+                <p><strong>Start the Game:</strong> Click "Start Game" to begin playing</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 bg-ethiopian-red text-white rounded-full flex items-center justify-center mx-auto mb-2 font-bold">
                   3
+                </div>
+                <p><strong>Listen for Numbers:</strong> Click "Call Next Number" to hear the next number</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-ethiopian-green text-white rounded-full flex items-center justify-center mx-auto mb-2 font-bold">
+                  4
                 </div>
                 <p><strong>Mark Your Card:</strong> Click numbers on your card when they're called</p>
               </div>
@@ -151,6 +165,9 @@ const Index = () => {
           </div>
         </div>
       </div>
+
+      {/* Floating Verification Button */}
+      <FloatingVerificationButton />
     </div>
   );
 };

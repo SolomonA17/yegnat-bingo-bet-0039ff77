@@ -9,6 +9,78 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      bingo_cards: {
+        Row: {
+          card_data: Json
+          card_number: string
+          created_at: string
+          game_date: string
+          id: string
+          is_winner: boolean
+          matched_numbers: number
+          status: Database["public"]["Enums"]["card_status"]
+          updated_at: string
+          user_id: string
+          user_name: string
+          user_phone: string
+        }
+        Insert: {
+          card_data: Json
+          card_number: string
+          created_at?: string
+          game_date?: string
+          id?: string
+          is_winner?: boolean
+          matched_numbers?: number
+          status?: Database["public"]["Enums"]["card_status"]
+          updated_at?: string
+          user_id: string
+          user_name: string
+          user_phone: string
+        }
+        Update: {
+          card_data?: Json
+          card_number?: string
+          created_at?: string
+          game_date?: string
+          id?: string
+          is_winner?: boolean
+          matched_numbers?: number
+          status?: Database["public"]["Enums"]["card_status"]
+          updated_at?: string
+          user_id?: string
+          user_name?: string
+          user_phone?: string
+        }
+        Relationships: []
+      }
+      card_verifications: {
+        Row: {
+          card_number: string
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+          verification_result: Json
+          verified_at: string
+        }
+        Insert: {
+          card_number: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          verification_result: Json
+          verified_at?: string
+        }
+        Update: {
+          card_number?: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          verification_result?: Json
+          verified_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           balance: number | null
@@ -142,6 +214,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_card_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       generate_transaction_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -156,6 +232,7 @@ export type Database = {
       }
     }
     Enums: {
+      card_status: "active" | "expired" | "winner" | "checked"
       payment_method:
         | "telebirr"
         | "cbe"
@@ -284,6 +361,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      card_status: ["active", "expired", "winner", "checked"],
       payment_method: [
         "telebirr",
         "cbe",
