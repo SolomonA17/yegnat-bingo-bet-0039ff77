@@ -11,7 +11,9 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          balance: number | null
           created_at: string | null
+          currency: string | null
           full_name: string | null
           id: string
           phone_number: string | null
@@ -19,7 +21,9 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          balance?: number | null
           created_at?: string | null
+          currency?: string | null
           full_name?: string | null
           id: string
           phone_number?: string | null
@@ -27,7 +31,9 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          balance?: number | null
           created_at?: string | null
+          currency?: string | null
           full_name?: string | null
           id?: string
           phone_number?: string | null
@@ -36,15 +42,133 @@ export type Database = {
         }
         Relationships: []
       }
+      transaction_logs: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string | null
+          metadata: Json | null
+          status: Database["public"]["Enums"]["transaction_status"]
+          transaction_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          metadata?: Json | null
+          status: Database["public"]["Enums"]["transaction_status"]
+          transaction_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          metadata?: Json | null
+          status?: Database["public"]["Enums"]["transaction_status"]
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaction_logs_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          account_number: string | null
+          amount: number
+          completed_at: string | null
+          confirmation_code: string | null
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          phone_number: string | null
+          reference_number: string | null
+          status: Database["public"]["Enums"]["transaction_status"] | null
+          transaction_id: string
+          type: Database["public"]["Enums"]["transaction_type"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_number?: string | null
+          amount: number
+          completed_at?: string | null
+          confirmation_code?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          phone_number?: string | null
+          reference_number?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          transaction_id: string
+          type: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_number?: string | null
+          amount?: number
+          completed_at?: string | null
+          confirmation_code?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          phone_number?: string | null
+          reference_number?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"] | null
+          transaction_id?: string
+          type?: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_transaction_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      update_user_balance: {
+        Args: {
+          p_user_id: string
+          p_amount: number
+          p_transaction_type: Database["public"]["Enums"]["transaction_type"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      payment_method:
+        | "telebirr"
+        | "cbe"
+        | "awash"
+        | "dashen"
+        | "bank_of_abyssinia"
+      transaction_status:
+        | "pending"
+        | "processing"
+        | "completed"
+        | "failed"
+        | "cancelled"
+      transaction_type: "deposit" | "withdrawal" | "bet" | "win" | "refund"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -159,6 +283,22 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      payment_method: [
+        "telebirr",
+        "cbe",
+        "awash",
+        "dashen",
+        "bank_of_abyssinia",
+      ],
+      transaction_status: [
+        "pending",
+        "processing",
+        "completed",
+        "failed",
+        "cancelled",
+      ],
+      transaction_type: ["deposit", "withdrawal", "bet", "win", "refund"],
+    },
   },
 } as const
