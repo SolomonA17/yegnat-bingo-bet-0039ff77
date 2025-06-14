@@ -197,7 +197,7 @@ const UserAccountsManager = () => {
                     <SelectContent>
                       {superAgents?.map((agent) => (
                         <SelectItem key={agent.user_id} value={agent.user_id}>
-                          {agent.profiles?.full_name}
+                          {agent.profiles?.full_name || 'Unknown Agent'}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -265,9 +265,9 @@ const UserAccountsManager = () => {
                     {userAccounts?.map((account) => (
                       <TableRow key={account.id}>
                         <TableCell className="font-medium">
-                          {account.profiles?.full_name}
+                          {account.profiles?.full_name || 'Unknown User'}
                         </TableCell>
-                        <TableCell>{account.profiles?.phone_number}</TableCell>
+                        <TableCell>{account.profiles?.phone_number || 'N/A'}</TableCell>
                         <TableCell className="font-mono">{account.balance} ETB</TableCell>
                         <TableCell>{account.total_transactions}</TableCell>
                         <TableCell>{account.total_cartelas_handled}</TableCell>
