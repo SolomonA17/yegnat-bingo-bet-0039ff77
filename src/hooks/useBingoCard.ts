@@ -8,6 +8,8 @@ interface BingoCardData {
   cardNumber: string;
   cardData: (number | null)[][];
   gameDate: string;
+  userName: string;
+  userPhone: string;
 }
 
 export const useBingoCard = () => {
@@ -41,11 +43,21 @@ export const useBingoCard = () => {
     return card;
   };
 
-  const issueNewCard = async () => {
+  const issueNewCard = async (playerName?: string, playerPhone?: string) => {
     if (!user) {
       toast({
         title: "Error",
-        description: "You must be logged in to get a Bingo card",
+        description: "You must be logged in to issue Bingo cards",
+        variant: "destructive"
+      });
+      return null;
+    }
+
+    // For admin system, we need player details
+    if (!playerName || !playerPhone) {
+      toast({
+        title: "Error",
+        description: "Player name and phone number are required",
         variant: "destructive"
       });
       return null;
@@ -62,21 +74,14 @@ export const useBingoCard = () => {
       const cardData = generateCard();
       const gameDate = new Date().toISOString();
 
-      // Get user profile for name and phone
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name, phone_number')
-        .eq('id', user.id)
-        .single();
-
       // Insert card into database
       const { error: insertError } = await supabase
         .from('bingo_cards')
         .insert({
           card_number: cardNumberData,
           user_id: user.id,
-          user_name: profile?.full_name || 'Player',
-          user_phone: profile?.phone_number || '',
+          user_name: playerName,
+          user_phone: playerPhone,
           card_data: cardData,
           game_date: gameDate
         });
@@ -86,14 +91,16 @@ export const useBingoCard = () => {
       const newCard: BingoCardData = {
         cardNumber: cardNumberData,
         cardData,
-        gameDate: new Date(gameDate).toLocaleString()
+        gameDate: new Date(gameDate).toLocaleString(),
+        userName: playerName,
+        userPhone: playerPhone
       };
 
       setCurrentCard(newCard);
       
       toast({
         title: "Success",
-        description: "Your Bingo card has been issued!",
+        description: `Bingo card ${cardNumberData} has been issued!`,
       });
 
       return newCard;

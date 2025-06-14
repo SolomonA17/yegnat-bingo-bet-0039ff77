@@ -2,15 +2,16 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRole } from '@/contexts/RoleContext';
+import { useAdminRole } from '@/hooks/useAdminRole';
 
 interface AdminRouteProps {
   children: React.ReactNode;
+  requiredRoles?: string[];
 }
 
-const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
+const AdminRoute: React.FC<AdminRouteProps> = ({ children, requiredRoles = [] }) => {
   const { user, loading: authLoading } = useAuth();
-  const { isAdmin, loading: roleLoading } = useRole();
+  const { adminRole, loading: roleLoading, hasAnyAdminRole, canAccess } = useAdminRole();
 
   if (authLoading || roleLoading) {
     return (
@@ -24,15 +25,28 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   }
 
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/admin/login" replace />;
   }
 
-  if (!isAdmin) {
+  if (!hasAnyAdminRole()) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-red-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-ethiopian-dark mb-4">Access Denied</h1>
           <p className="text-gray-600">You don't have permission to access the admin panel.</p>
+          <p className="text-sm text-gray-500 mt-2">Contact your administrator for access.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (requiredRoles.length > 0 && !canAccess(requiredRoles)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-red-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-ethiopian-dark mb-4">Insufficient Privileges</h1>
+          <p className="text-gray-600">Your role doesn't have permission to access this page.</p>
+          <p className="text-sm text-gray-500 mt-2">Required roles: {requiredRoles.join(', ')}</p>
         </div>
       </div>
     );

@@ -1,0 +1,115 @@
+
+import React, { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
+import { Phone, Lock, Shield } from 'lucide-react';
+
+const AdminLoginForm: React.FC = () => {
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { signIn } = useAuth();
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if (!phoneNumber.startsWith('+')) {
+      toast({
+        title: "Invalid phone number",
+        description: "Please include country code (e.g., +251 for Ethiopia)",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { error } = await signIn(phoneNumber, password);
+      if (error) {
+        toast({
+          title: "Login failed",
+          description: "Invalid credentials or insufficient privileges",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Login error",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-red-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md shadow-xl">
+        <CardHeader className="text-center">
+          <div className="flex items-center justify-center mb-4">
+            <Shield className="w-12 h-12 text-ethiopian-green" />
+          </div>
+          <CardTitle className="text-2xl text-ethiopian-dark">
+            Admin Access
+          </CardTitle>
+          <p className="text-gray-600">
+            Staff login for Ethiopian Bingo system
+          </p>
+        </CardHeader>
+        
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-ethiopian-dark flex items-center">
+                <Phone className="w-4 h-4 mr-2" />
+                Phone Number
+              </label>
+              <Input
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="+251XXXXXXXXX"
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-ethiopian-dark flex items-center">
+                <Lock className="w-4 h-4 mr-2" />
+                Password
+              </label>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                required
+              />
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full bg-ethiopian-green hover:bg-ethiopian-green/90"
+              disabled={loading}
+            >
+              {loading ? 'Signing in...' : 'Access System'}
+            </Button>
+          </form>
+
+          <div className="mt-6 text-center text-xs text-gray-500">
+            <p>For authorized staff only</p>
+            <p>Contact your administrator for access</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default AdminLoginForm;
