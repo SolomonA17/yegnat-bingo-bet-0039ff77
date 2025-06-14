@@ -27,6 +27,9 @@ const App = () => (
                 {/* Redirect root to admin login */}
                 <Route path="/" element={<Navigate to="/admin/login" replace />} />
                 
+                {/* Redirect old auth route to admin login */}
+                <Route path="/auth" element={<Navigate to="/admin/login" replace />} />
+                
                 {/* Admin login (public access) */}
                 <Route path="/admin/login" element={<AdminLogin />} />
                 

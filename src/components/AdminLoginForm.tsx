@@ -1,6 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAdminRole } from '@/hooks/useAdminRole';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,8 +13,17 @@ const AdminLoginForm: React.FC = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, user } = useAuth();
+  const { hasAnyAdminRole, loading: roleLoading } = useAdminRole();
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  // Redirect if already authenticated and has admin role
+  useEffect(() => {
+    if (user && !roleLoading && hasAnyAdminRole()) {
+      navigate('/admin');
+    }
+  }, [user, hasAnyAdminRole, roleLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +46,12 @@ const AdminLoginForm: React.FC = () => {
           title: "Login failed",
           description: "Invalid credentials or insufficient privileges",
           variant: "destructive",
+        });
+      } else {
+        // Success will be handled by the useEffect above
+        toast({
+          title: "Login successful",
+          description: "Welcome to the admin system",
         });
       }
     } catch (error) {
