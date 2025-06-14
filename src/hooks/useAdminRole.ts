@@ -43,7 +43,11 @@ export const useAdminRole = () => {
         console.error('Error fetching admin role:', error);
         setAdminRole(null);
       } else if (data) {
-        setAdminRole(data);
+        const mappedRole: AdminRole = {
+          role: data.role,
+          isActive: data.is_active
+        };
+        setAdminRole(mappedRole);
         setIsAdmin(data.role === 'admin' || data.role === 'super_admin');
         setIsCashier(data.role === 'cashier');
         setIsSuperAdmin(data.role === 'super_admin');
