@@ -5,6 +5,7 @@ import BingoCard from '@/components/BingoCard';
 import NumberDisplay from '@/components/NumberDisplay';
 import CalledNumbersList from '@/components/CalledNumbersList';
 import GameControls from '@/components/GameControls';
+import UserProfile from '@/components/UserProfile';
 import useBingoGame from '@/hooks/useBingoGame';
 
 const Index = () => {
@@ -42,7 +43,7 @@ const Index = () => {
               />
             </div>
             
-            <div className="text-center space-y-2">
+            <div className="text-center space-y-2 mb-6">
               <p className="text-sm text-ethiopian-dark/70">
                 Click numbers after they're called
               </p>
@@ -50,6 +51,9 @@ const Index = () => {
                 Marked: {markedNumbers.size} numbers
               </p>
             </div>
+
+            {/* User Profile */}
+            <UserProfile />
           </div>
 
           {/* Center Column - Game Display */}
