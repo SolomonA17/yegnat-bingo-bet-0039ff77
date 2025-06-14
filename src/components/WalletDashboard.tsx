@@ -1,5 +1,5 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useTransaction } from '@/contexts/TransactionContext';
@@ -12,7 +12,16 @@ type ActiveTab = 'overview' | 'deposit' | 'withdraw' | 'history';
 
 const WalletDashboard: React.FC = () => {
   const { balance, refreshBalance, loading } = useTransaction();
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<ActiveTab>('overview');
+
+  // Handle URL parameters for direct navigation
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['deposit', 'withdraw', 'history'].includes(tab)) {
+      setActiveTab(tab as ActiveTab);
+    }
+  }, [searchParams]);
 
   const handleRefresh = () => {
     refreshBalance();

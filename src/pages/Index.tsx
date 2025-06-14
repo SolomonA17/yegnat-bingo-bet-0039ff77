@@ -1,5 +1,5 @@
-
 import React from 'react';
+import NavigationBar from '@/components/NavigationBar';
 import EthiopianHeader from '@/components/EthiopianHeader';
 import BingoCard from '@/components/BingoCard';
 import NumberDisplay from '@/components/NumberDisplay';
@@ -26,6 +26,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-red-50">
+      <NavigationBar />
       <div className="container mx-auto px-4 py-8">
         <EthiopianHeader />
         
