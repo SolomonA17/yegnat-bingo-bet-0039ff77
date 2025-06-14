@@ -36,16 +36,11 @@ const UserAccountsManager = () => {
         .from('user_accounts')
         .select(`
           *,
-          profiles(full_name, phone_number),
-          assigned_super_agent:profiles!user_accounts_assigned_super_agent_fkey(full_name)
+          profiles!user_accounts_user_id_fkey(full_name, phone_number),
+          assigned_super_agent_profile:profiles!user_accounts_assigned_super_agent_fkey(full_name)
         `)
         .eq('user_type', activeTab)
         .order('created_at', { ascending: false });
-
-      if (searchTerm) {
-        // This is a simplified search - in production you'd want to join with profiles
-        query = query.ilike('profiles.full_name', `%${searchTerm}%`);
-      }
 
       const { data, error } = await query;
       if (error) throw error;
@@ -58,7 +53,10 @@ const UserAccountsManager = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('user_accounts')
-        .select('user_id, profiles(full_name)')
+        .select(`
+          user_id, 
+          profiles!user_accounts_user_id_fkey(full_name)
+        `)
         .eq('user_type', 'super_agent')
         .eq('is_active', true);
       
@@ -197,7 +195,7 @@ const UserAccountsManager = () => {
                     <SelectContent>
                       {superAgents?.map((agent) => (
                         <SelectItem key={agent.user_id} value={agent.user_id}>
-                          {agent.profiles?.full_name || 'Unknown Agent'}
+                          {(agent.profiles as any)?.full_name || 'Unknown Agent'}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -265,9 +263,9 @@ const UserAccountsManager = () => {
                     {userAccounts?.map((account) => (
                       <TableRow key={account.id}>
                         <TableCell className="font-medium">
-                          {account.profiles?.full_name || 'Unknown User'}
+                          {(account.profiles as any)?.full_name || 'Unknown User'}
                         </TableCell>
-                        <TableCell>{account.profiles?.phone_number || 'N/A'}</TableCell>
+                        <TableCell>{(account.profiles as any)?.phone_number || 'N/A'}</TableCell>
                         <TableCell className="font-mono">{account.balance} ETB</TableCell>
                         <TableCell>{account.total_transactions}</TableCell>
                         <TableCell>{account.total_cartelas_handled}</TableCell>
