@@ -6,14 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Heart, Mail, Lock, User, Phone } from 'lucide-react';
+import { Heart, Lock, User, Phone } from 'lucide-react';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
 
   const { signIn, signUp, user } = useAuth();
@@ -30,9 +29,20 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
 
+    // Validate phone number format (must include country code)
+    if (!phoneNumber.startsWith('+')) {
+      toast({
+        title: "Invalid phone number",
+        description: "Please include country code (e.g., +1 for US)",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       if (isLogin) {
-        const { error } = await signIn(email, password);
+        const { error } = await signIn(phoneNumber, password);
         if (error) {
           toast({
             title: "Login failed",
@@ -46,7 +56,7 @@ const Auth = () => {
           });
         }
       } else {
-        const { error } = await signUp(email, password, fullName, phoneNumber);
+        const { error } = await signUp(phoneNumber, password, fullName);
         if (error) {
           toast({
             title: "Signup failed",
@@ -55,10 +65,9 @@ const Auth = () => {
           });
         } else {
           toast({
-            title: "Account created!",
-            description: "Please check your email to verify your account.",
+            title: "Verification needed",
+            description: "Please check your phone for a verification code.",
           });
-          setIsLogin(true);
         }
       }
     } catch (error) {
@@ -110,48 +119,36 @@ const Auth = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
-                <>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-ethiopian-dark flex items-center">
-                      <User className="w-4 h-4 mr-2" />
-                      Full Name
-                    </label>
-                    <Input
-                      type="text"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      placeholder="Enter your full name"
-                      required={!isLogin}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-ethiopian-dark flex items-center">
-                      <Phone className="w-4 h-4 mr-2" />
-                      Phone Number (Optional)
-                    </label>
-                    <Input
-                      type="tel"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      placeholder="Enter your phone number"
-                    />
-                  </div>
-                </>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-ethiopian-dark flex items-center">
+                    <User className="w-4 h-4 mr-2" />
+                    Full Name
+                  </label>
+                  <Input
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Enter your full name"
+                    required={!isLogin}
+                  />
+                </div>
               )}
               
               <div className="space-y-2">
                 <label className="text-sm font-medium text-ethiopian-dark flex items-center">
-                  <Mail className="w-4 h-4 mr-2" />
-                  Email
+                  <Phone className="w-4 h-4 mr-2" />
+                  Phone Number
                 </label>
                 <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="Enter your phone number (with country code +XXX)"
                   required
                 />
+                <p className="text-xs text-gray-500">
+                  Include country code (e.g., +1 for US, +251 for Ethiopia)
+                </p>
               </div>
               
               <div className="space-y-2">

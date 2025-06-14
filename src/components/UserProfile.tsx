@@ -3,7 +3,7 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, Phone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const UserProfile: React.FC = () => {
@@ -26,6 +26,10 @@ const UserProfile: React.FC = () => {
     }
   };
 
+  // Get the phone number from user metadata if available
+  const phoneNumber = user?.phone || user?.user_metadata?.phone_number || "Not available";
+  const fullName = user?.user_metadata?.full_name || "Player";
+
   return (
     <Card className="shadow-lg">
       <CardHeader className="pb-3">
@@ -36,8 +40,13 @@ const UserProfile: React.FC = () => {
       </CardHeader>
       <CardContent className="space-y-3">
         <div>
-          <p className="text-sm text-gray-600">Email</p>
-          <p className="font-medium text-ethiopian-dark">{user?.email}</p>
+          <p className="text-sm text-gray-600">Full Name</p>
+          <p className="font-medium text-ethiopian-dark">{fullName}</p>
+        </div>
+        
+        <div>
+          <p className="text-sm text-gray-600">Phone Number</p>
+          <p className="font-medium text-ethiopian-dark">{phoneNumber}</p>
         </div>
         
         <Button
