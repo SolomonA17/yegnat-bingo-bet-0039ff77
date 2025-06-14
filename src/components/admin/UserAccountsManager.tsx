@@ -36,8 +36,8 @@ const UserAccountsManager = () => {
         .from('user_accounts')
         .select(`
           *,
-          profiles!user_accounts_user_id_fkey(full_name, phone_number),
-          assigned_super_agent_profile:profiles!user_accounts_assigned_super_agent_fkey(full_name)
+          agents!user_accounts_user_id_fkey(full_name, phone_number),
+          assigned_super_agent_profile:agents!user_accounts_assigned_super_agent_fkey(full_name)
         `)
         .eq('user_type', activeTab)
         .order('created_at', { ascending: false });
@@ -55,7 +55,7 @@ const UserAccountsManager = () => {
         .from('user_accounts')
         .select(`
           user_id, 
-          profiles!user_accounts_user_id_fkey(full_name)
+          agents!user_accounts_user_id_fkey(full_name)
         `)
         .eq('user_type', 'super_agent')
         .eq('is_active', true);
@@ -195,7 +195,7 @@ const UserAccountsManager = () => {
                     <SelectContent>
                       {superAgents?.map((agent) => (
                         <SelectItem key={agent.user_id} value={agent.user_id}>
-                          {(agent.profiles as any)?.full_name || 'Unknown Agent'}
+                          {(agent.agents as any)?.full_name || 'Unknown Agent'}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -263,9 +263,9 @@ const UserAccountsManager = () => {
                     {userAccounts?.map((account) => (
                       <TableRow key={account.id}>
                         <TableCell className="font-medium">
-                          {(account.profiles as any)?.full_name || 'Unknown User'}
+                          {(account.agents as any)?.full_name || 'Unknown User'}
                         </TableCell>
-                        <TableCell>{(account.profiles as any)?.phone_number || 'N/A'}</TableCell>
+                        <TableCell>{(account.agents as any)?.phone_number || 'N/A'}</TableCell>
                         <TableCell className="font-mono">{account.balance} ETB</TableCell>
                         <TableCell>{account.total_transactions}</TableCell>
                         <TableCell>{account.total_cartelas_handled}</TableCell>

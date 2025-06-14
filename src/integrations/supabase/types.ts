@@ -48,6 +48,39 @@ export type Database = {
         }
         Relationships: []
       }
+      agents: {
+        Row: {
+          balance: number | null
+          created_at: string | null
+          currency: string | null
+          full_name: string | null
+          id: string
+          phone_number: string | null
+          total_games_played: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          balance?: number | null
+          created_at?: string | null
+          currency?: string | null
+          full_name?: string | null
+          id: string
+          phone_number?: string | null
+          total_games_played?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          balance?: number | null
+          created_at?: string | null
+          currency?: string | null
+          full_name?: string | null
+          id?: string
+          phone_number?: string | null
+          total_games_played?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       bingo_cards: {
         Row: {
           assigned_agent: string | null
@@ -242,39 +275,6 @@ export type Database = {
           status?: Database["public"]["Enums"]["game_result_status"] | null
           total_prize_pool?: number | null
           winning_cards?: string[] | null
-        }
-        Relationships: []
-      }
-      profiles: {
-        Row: {
-          balance: number | null
-          created_at: string | null
-          currency: string | null
-          full_name: string | null
-          id: string
-          phone_number: string | null
-          total_games_played: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          balance?: number | null
-          created_at?: string | null
-          currency?: string | null
-          full_name?: string | null
-          id: string
-          phone_number?: string | null
-          total_games_played?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          balance?: number | null
-          created_at?: string | null
-          currency?: string | null
-          full_name?: string | null
-          id?: string
-          phone_number?: string | null
-          total_games_played?: number | null
-          updated_at?: string | null
         }
         Relationships: []
       }
