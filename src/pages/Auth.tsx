@@ -2,11 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Heart, Lock, User, Phone, ArrowLeft } from 'lucide-react';
+import AuthHeader from '@/components/auth/AuthHeader';
+import AuthForm from '@/components/auth/AuthForm';
+import AuthToggle from '@/components/auth/AuthToggle';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -123,41 +123,26 @@ const Auth = () => {
       : 'Create your account to start playing';
   };
 
+  const handleToggleAuth = () => {
+    setIsLogin(!isLogin);
+  };
+
+  const handleForgotPassword = () => {
+    setIsForgotPassword(true);
+  };
+
+  const handleBackToLogin = () => {
+    setIsForgotPassword(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-red-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <div className="w-8 h-8 rounded-full bg-ethiopian-green mr-2"></div>
-            <div className="w-8 h-8 rounded-full bg-ethiopian-yellow mr-2"></div>
-            <div className="w-8 h-8 rounded-full bg-ethiopian-red"></div>
-          </div>
-          
-          <h1 className="text-3xl font-bold mb-2">
-            <span className="text-ethiopian-green">Ethiopian</span>{' '}
-            <span className="text-ethiopian-yellow">Bingo</span>
-          </h1>
-          
-          <div className="flex items-center justify-center text-ethiopian-red">
-            <Heart className="w-4 h-4 mr-2 fill-current" />
-            <span className="text-sm">Welcome to our community</span>
-          </div>
-        </div>
+        <AuthHeader />
 
         <Card className="shadow-lg">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-ethiopian-dark flex items-center justify-center">
-              {isForgotPassword && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsForgotPassword(false)}
-                  className="mr-2 p-1"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                </Button>
-              )}
+            <CardTitle className="text-2xl text-ethiopian-dark">
               {getCardTitle()}
             </CardTitle>
             <CardDescription>
@@ -166,96 +151,26 @@ const Auth = () => {
           </CardHeader>
           
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {!isLogin && !isForgotPassword && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-ethiopian-dark flex items-center">
-                    <User className="w-4 h-4 mr-2" />
-                    Full Name
-                  </label>
-                  <Input
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Enter your full name"
-                    required={!isLogin && !isForgotPassword}
-                  />
-                </div>
-              )}
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-ethiopian-dark flex items-center">
-                  <Phone className="w-4 h-4 mr-2" />
-                  Phone Number
-                </label>
-                <Input
-                  type="tel"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="Enter your phone number (with country code +XXX)"
-                  required
-                />
-                <p className="text-xs text-gray-500">
-                  Include country code (e.g., +1 for US, +251 for Ethiopia)
-                </p>
-              </div>
-              
-              {!isForgotPassword && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-ethiopian-dark flex items-center">
-                    <Lock className="w-4 h-4 mr-2" />
-                    Password
-                  </label>
-                  <Input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    required
-                  />
-                </div>
-              )}
+            <AuthForm
+              isLogin={isLogin}
+              isForgotPassword={isForgotPassword}
+              phoneNumber={phoneNumber}
+              password={password}
+              fullName={fullName}
+              loading={loading}
+              onPhoneNumberChange={setPhoneNumber}
+              onPasswordChange={setPassword}
+              onFullNameChange={setFullName}
+              onSubmit={handleSubmit}
+              onBackToLogin={handleBackToLogin}
+            />
 
-              <Button
-                type="submit"
-                className="w-full bg-ethiopian-green hover:bg-ethiopian-green/90"
-                disabled={loading}
-              >
-                {loading ? 'Please wait...' : (
-                  isForgotPassword ? 'Send Reset Instructions' : 
-                  (isLogin ? 'Sign In' : 'Create Account')
-                )}
-              </Button>
-            </form>
-
-            {!isForgotPassword && (
-              <div className="mt-6 space-y-4">
-                {isLogin && (
-                  <div className="text-center">
-                    <Button
-                      variant="link"
-                      onClick={() => setIsForgotPassword(true)}
-                      className="text-ethiopian-green hover:text-ethiopian-green/80 text-sm"
-                    >
-                      Forgot your password?
-                    </Button>
-                  </div>
-                )}
-                
-                <div className="text-center">
-                  <p className="text-sm text-gray-600">
-                    {isLogin ? "Don't have an account?" : 'Already have an account?'}
-                  </p>
-                  <Button
-                    variant="link"
-                    onClick={() => setIsLogin(!isLogin)}
-                    className="text-ethiopian-green hover:text-ethiopian-green/80"
-                  >
-                    {isLogin ? 'Sign up here' : 'Sign in here'}
-                  </Button>
-                </div>
-              </div>
-            )}
+            <AuthToggle
+              isLogin={isLogin}
+              isForgotPassword={isForgotPassword}
+              onToggleAuth={handleToggleAuth}
+              onForgotPassword={handleForgotPassword}
+            />
           </CardContent>
         </Card>
       </div>
