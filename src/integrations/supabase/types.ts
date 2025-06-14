@@ -50,10 +50,12 @@ export type Database = {
       }
       bingo_cards: {
         Row: {
+          assigned_agent: string | null
           card_data: Json
           card_number: string
           created_at: string
           game_date: string
+          group_id: string | null
           id: string
           is_winner: boolean
           matched_numbers: number
@@ -64,10 +66,12 @@ export type Database = {
           user_phone: string
         }
         Insert: {
+          assigned_agent?: string | null
           card_data: Json
           card_number: string
           created_at?: string
           game_date?: string
+          group_id?: string | null
           id?: string
           is_winner?: boolean
           matched_numbers?: number
@@ -78,10 +82,12 @@ export type Database = {
           user_phone: string
         }
         Update: {
+          assigned_agent?: string | null
           card_data?: Json
           card_number?: string
           created_at?: string
           game_date?: string
+          group_id?: string | null
           id?: string
           is_winner?: boolean
           matched_numbers?: number
@@ -91,7 +97,15 @@ export type Database = {
           user_name?: string
           user_phone?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "bingo_cards_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "cartela_groups"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       card_verifications: {
         Row: {
@@ -117,6 +131,117 @@ export type Database = {
           user_agent?: string | null
           verification_result?: Json
           verified_at?: string
+        }
+        Relationships: []
+      }
+      cartela_groups: {
+        Row: {
+          assigned_agent: string | null
+          created_at: string
+          group_name: string
+          id: string
+          sold_cartelas: number | null
+          total_cartelas: number | null
+          updated_at: string
+          won_cartelas: number | null
+        }
+        Insert: {
+          assigned_agent?: string | null
+          created_at?: string
+          group_name: string
+          id?: string
+          sold_cartelas?: number | null
+          total_cartelas?: number | null
+          updated_at?: string
+          won_cartelas?: number | null
+        }
+        Update: {
+          assigned_agent?: string | null
+          created_at?: string
+          group_name?: string
+          id?: string
+          sold_cartelas?: number | null
+          total_cartelas?: number | null
+          updated_at?: string
+          won_cartelas?: number | null
+        }
+        Relationships: []
+      }
+      credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          from_user: string | null
+          id: string
+          notes: string | null
+          purpose: string | null
+          receipt_status: boolean | null
+          to_user: string | null
+          transaction_type: Database["public"]["Enums"]["credit_transaction_type"]
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          from_user?: string | null
+          id?: string
+          notes?: string | null
+          purpose?: string | null
+          receipt_status?: boolean | null
+          to_user?: string | null
+          transaction_type: Database["public"]["Enums"]["credit_transaction_type"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          from_user?: string | null
+          id?: string
+          notes?: string | null
+          purpose?: string | null
+          receipt_status?: boolean | null
+          to_user?: string | null
+          transaction_type?: Database["public"]["Enums"]["credit_transaction_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      game_results: {
+        Row: {
+          called_numbers: number[]
+          created_at: string
+          created_by: string | null
+          draw_number: number
+          game_date: string
+          id: string
+          published_at: string | null
+          status: Database["public"]["Enums"]["game_result_status"] | null
+          total_prize_pool: number | null
+          winning_cards: string[] | null
+        }
+        Insert: {
+          called_numbers: number[]
+          created_at?: string
+          created_by?: string | null
+          draw_number: number
+          game_date: string
+          id?: string
+          published_at?: string | null
+          status?: Database["public"]["Enums"]["game_result_status"] | null
+          total_prize_pool?: number | null
+          winning_cards?: string[] | null
+        }
+        Update: {
+          called_numbers?: number[]
+          created_at?: string
+          created_by?: string | null
+          draw_number?: number
+          game_date?: string
+          id?: string
+          published_at?: string | null
+          status?: Database["public"]["Enums"]["game_result_status"] | null
+          total_prize_pool?: number | null
+          winning_cards?: string[] | null
         }
         Relationships: []
       }
@@ -248,6 +373,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_accounts: {
+        Row: {
+          assigned_super_agent: string | null
+          balance: number | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          total_cartelas_handled: number | null
+          total_transactions: number | null
+          updated_at: string
+          user_id: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }
+        Insert: {
+          assigned_super_agent?: string | null
+          balance?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          total_cartelas_handled?: number | null
+          total_transactions?: number | null
+          updated_at?: string
+          user_id: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }
+        Update: {
+          assigned_super_agent?: string | null
+          balance?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          total_cartelas_handled?: number | null
+          total_transactions?: number | null
+          updated_at?: string
+          user_id?: string
+          user_type?: Database["public"]["Enums"]["user_type"]
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           assigned_at: string
@@ -311,6 +475,13 @@ export type Database = {
     Enums: {
       admin_role: "super_admin" | "admin" | "cashier"
       card_status: "active" | "expired" | "winner" | "checked"
+      cartela_status: "active" | "used" | "void" | "sold"
+      credit_transaction_type:
+        | "sent_to_agent"
+        | "sent_to_shop"
+        | "received"
+        | "recharge"
+      game_result_status: "pending" | "published" | "completed"
       payment_method:
         | "telebirr"
         | "cbe"
@@ -324,6 +495,7 @@ export type Database = {
         | "failed"
         | "cancelled"
       transaction_type: "deposit" | "withdrawal" | "bet" | "win" | "refund"
+      user_type: "super_admin" | "admin" | "super_agent" | "shop"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -441,6 +613,14 @@ export const Constants = {
     Enums: {
       admin_role: ["super_admin", "admin", "cashier"],
       card_status: ["active", "expired", "winner", "checked"],
+      cartela_status: ["active", "used", "void", "sold"],
+      credit_transaction_type: [
+        "sent_to_agent",
+        "sent_to_shop",
+        "received",
+        "recharge",
+      ],
+      game_result_status: ["pending", "published", "completed"],
       payment_method: [
         "telebirr",
         "cbe",
@@ -456,6 +636,7 @@ export const Constants = {
         "cancelled",
       ],
       transaction_type: ["deposit", "withdrawal", "bet", "win", "refund"],
+      user_type: ["super_admin", "admin", "super_agent", "shop"],
     },
   },
 } as const
