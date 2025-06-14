@@ -9,6 +9,8 @@ import { TransactionProvider } from "@/contexts/TransactionContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Wallet from "./pages/Wallet";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +28,16 @@ const App = () => (
               <Route path="/" element={
                 <ProtectedRoute>
                   <Index />
+                </ProtectedRoute>
+              } />
+              <Route path="/wallet" element={
+                <ProtectedRoute>
+                  <Wallet />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin" element={
+                <ProtectedRoute>
+                  <Admin />
                 </ProtectedRoute>
               } />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
