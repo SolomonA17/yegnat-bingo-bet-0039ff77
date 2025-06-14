@@ -40,31 +40,37 @@ export const useAdminRole = () => {
     setLoading(true);
 
     try {
+      // Use select() instead of single() to handle multiple roles
       const { data, error } = await supabase
         .from('user_roles')
         .select('role, is_active')
         .eq('user_id', user.id)
-        .eq('is_active', true)
-        .single();
+        .eq('is_active', true);
 
       console.log('fetchAdminRole - query result:', { data, error });
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error fetching admin role:', error);
         setAdminRole(null);
         setIsAdmin(false);
         setIsCashier(false);
         setIsSuperAdmin(false);
-      } else if (data) {
-        console.log('fetchAdminRole - user has role:', data.role);
+      } else if (data && data.length > 0) {
+        // Take the highest priority role (super_admin > admin > cashier)
+        const roleHierarchy = { 'super_admin': 3, 'admin': 2, 'cashier': 1 };
+        const highestRole = data.reduce((prev, current) => {
+          return roleHierarchy[current.role] > roleHierarchy[prev.role] ? current : prev;
+        });
+
+        console.log('fetchAdminRole - user has roles:', data, 'using highest:', highestRole.role);
         const mappedRole: AdminRole = {
-          role: data.role,
-          isActive: data.is_active
+          role: highestRole.role,
+          isActive: highestRole.is_active
         };
         setAdminRole(mappedRole);
-        setIsAdmin(data.role === 'admin' || data.role === 'super_admin');
-        setIsCashier(data.role === 'cashier');
-        setIsSuperAdmin(data.role === 'super_admin');
+        setIsAdmin(highestRole.role === 'admin' || highestRole.role === 'super_admin');
+        setIsCashier(highestRole.role === 'cashier');
+        setIsSuperAdmin(highestRole.role === 'super_admin');
       } else {
         console.log('fetchAdminRole - no role found for user');
         setAdminRole(null);
