@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAdminRole } from '@/hooks/useAdminRole';
@@ -30,12 +31,12 @@ const AdminDashboard: React.FC = () => {
 
         <Card className="shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Agents</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Players</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-ethiopian-yellow">89</div>
-            <p className="text-xs text-muted-foreground">Active agents</p>
+            <p className="text-xs text-muted-foreground">Active sessions</p>
           </CardContent>
         </Card>
 
@@ -82,7 +83,7 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
                 <div>
-                  <p className="font-medium">New card issued to Agent #456</p>
+                  <p className="font-medium">New card issued to Player #456</p>
                   <p className="text-sm text-gray-600">5 minutes ago</p>
                 </div>
                 <span className="text-blue-600 text-sm">Issued</span>
@@ -137,8 +138,8 @@ const AdminDashboard: React.FC = () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                <h4 className="font-medium text-ethiopian-dark">Agent Management</h4>
-                <p className="text-sm text-gray-600">Manage agent accounts and roles</p>
+                <h4 className="font-medium text-ethiopian-dark">User Management</h4>
+                <p className="text-sm text-gray-600">Manage staff accounts and roles</p>
               </div>
               <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
                 <h4 className="font-medium text-ethiopian-dark">Game Management</h4>

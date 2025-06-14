@@ -17,13 +17,13 @@ const AdminStatsOverview = () => {
     queryKey: ['admin-stats'],
     queryFn: async () => {
       const [
-        { count: totalAgents },
+        { count: totalUsers },
         { count: totalCartelas },
         { count: activeGames },
         { data: totalCredits },
         { count: pendingResults }
       ] = await Promise.all([
-        supabase.from('agents').select('*', { count: 'exact', head: true }),
+        supabase.from('user_accounts').select('*', { count: 'exact', head: true }),
         supabase.from('bingo_cards').select('*', { count: 'exact', head: true }),
         supabase.from('game_results').select('*', { count: 'exact', head: true }).eq('status', 'published'),
         supabase.from('credit_transactions').select('amount').eq('transaction_type', 'received'),
@@ -33,7 +33,7 @@ const AdminStatsOverview = () => {
       const totalCreditAmount = totalCredits?.reduce((sum, t) => sum + Number(t.amount), 0) || 0;
 
       return {
-        totalAgents: totalAgents || 0,
+        totalUsers: totalUsers || 0,
         totalCartelas: totalCartelas || 0,
         activeGames: activeGames || 0,
         totalCredits: totalCreditAmount,
@@ -58,8 +58,8 @@ const AdminStatsOverview = () => {
 
   const statCards = [
     {
-      title: 'Total Agents',
-      value: stats?.totalAgents || 0,
+      title: 'Total Users',
+      value: stats?.totalUsers || 0,
       icon: Users,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50'
@@ -145,7 +145,7 @@ const AdminStatsOverview = () => {
             <div className="flex items-center space-x-4 p-4 bg-red-50 rounded-lg">
               <div className="w-2 h-2 bg-ethiopian-red rounded-full"></div>
               <div className="flex-1">
-                <p className="text-sm font-medium">New agent registered</p>
+                <p className="text-sm font-medium">New user registered</p>
                 <p className="text-xs text-gray-500">10 minutes ago</p>
               </div>
             </div>
