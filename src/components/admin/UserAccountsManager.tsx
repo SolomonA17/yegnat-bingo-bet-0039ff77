@@ -13,6 +13,15 @@ import { useToast } from '@/hooks/use-toast';
 import { Plus, Users, Building, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
+interface NewUserAccount {
+  full_name: string;
+  phone_number: string;
+  password: string;
+  user_type: string;
+  assigned_super_agent: string | null;
+  initial_balance: string;
+}
+
 const UserAccountsManager = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('super_agent');
@@ -59,7 +68,7 @@ const UserAccountsManager = () => {
   });
 
   const createUserAccountMutation = useMutation({
-    mutationFn: async (newAccount) => {
+    mutationFn: async (newAccount: NewUserAccount) => {
       // First create the auth user (this would typically be done through a secure endpoint)
       const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         phone: newAccount.phone_number,
@@ -104,21 +113,21 @@ const UserAccountsManager = () => {
     }
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
+    const formData = new FormData(e.currentTarget);
     
     createUserAccountMutation.mutate({
-      full_name: formData.get('fullName'),
-      phone_number: formData.get('phoneNumber'),
-      password: formData.get('password'),
+      full_name: formData.get('fullName') as string,
+      phone_number: formData.get('phoneNumber') as string,
+      password: formData.get('password') as string,
       user_type: activeTab,
-      assigned_super_agent: formData.get('assignedSuperAgent') || null,
-      initial_balance: formData.get('initialBalance') || '0'
+      assigned_super_agent: (formData.get('assignedSuperAgent') as string) || null,
+      initial_balance: (formData.get('initialBalance') as string) || '0'
     });
   };
 
-  const getStatusColor = (isActive) => {
+  const getStatusColor = (isActive: boolean) => {
     return isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
   };
 

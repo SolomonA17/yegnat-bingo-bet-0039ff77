@@ -13,6 +13,16 @@ import { useToast } from '@/hooks/use-toast';
 import { Plus, ArrowUp, ArrowDown, DollarSign, CreditCard } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
+interface NewTransaction {
+  transaction_type: string;
+  from_user: string | null;
+  to_user: string | null;
+  amount: number;
+  purpose: string;
+  notes: string;
+  receipt_status: boolean;
+}
+
 const CreditReportsManager = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('sent_to_agent');
@@ -51,7 +61,7 @@ const CreditReportsManager = () => {
   });
 
   const createTransactionMutation = useMutation({
-    mutationFn: async (newTransaction) => {
+    mutationFn: async (newTransaction: NewTransaction) => {
       const { data, error } = await supabase
         .from('credit_transactions')
         .insert([newTransaction])
@@ -78,22 +88,22 @@ const CreditReportsManager = () => {
     }
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
+    const formData = new FormData(e.currentTarget);
     
     createTransactionMutation.mutate({
       transaction_type: activeTab,
-      from_user: formData.get('fromUser') || null,
-      to_user: formData.get('toUser') || null,
-      amount: parseFloat(formData.get('amount')),
-      purpose: formData.get('purpose'),
-      notes: formData.get('notes'),
+      from_user: (formData.get('fromUser') as string) || null,
+      to_user: (formData.get('toUser') as string) || null,
+      amount: parseFloat(formData.get('amount') as string),
+      purpose: formData.get('purpose') as string,
+      notes: formData.get('notes') as string,
       receipt_status: formData.get('receiptStatus') === 'true'
     });
   };
 
-  const getTransactionIcon = (type) => {
+  const getTransactionIcon = (type: string) => {
     switch (type) {
       case 'sent_to_agent':
       case 'sent_to_shop':

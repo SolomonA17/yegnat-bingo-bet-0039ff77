@@ -11,6 +11,13 @@ import { useToast } from '@/hooks/use-toast';
 import { Plus, Search, Filter } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
+interface CartelaGenerationParams {
+  count: number;
+  groupId: string | null;
+  userName: string;
+  userPhone: string;
+}
+
 const CartelasManager = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -57,7 +64,7 @@ const CartelasManager = () => {
   });
 
   const generateCartelasMutation = useMutation({
-    mutationFn: async ({ count, groupId, userName, userPhone }) => {
+    mutationFn: async ({ count, groupId, userName, userPhone }: CartelaGenerationParams) => {
       const cartelas = [];
       
       for (let i = 0; i < count; i++) {
@@ -110,19 +117,19 @@ const CartelasManager = () => {
     }
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
+    const formData = new FormData(e.currentTarget);
     
     generateCartelasMutation.mutate({
-      count: parseInt(formData.get('count')),
-      groupId: formData.get('groupId') || null,
-      userName: formData.get('userName'),
-      userPhone: formData.get('userPhone')
+      count: parseInt(formData.get('count') as string),
+      groupId: (formData.get('groupId') as string) || null,
+      userName: formData.get('userName') as string,
+      userPhone: formData.get('userPhone') as string
     });
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return 'bg-green-100 text-green-800';
       case 'expired': return 'bg-gray-100 text-gray-800';

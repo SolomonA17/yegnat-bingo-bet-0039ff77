@@ -10,6 +10,15 @@ import { useToast } from '@/hooks/use-toast';
 import { Plus, Eye, Edit, Trash2, CheckCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
+interface NewGameResult {
+  game_date: string;
+  draw_number: number;
+  called_numbers: number[];
+  winning_cards: string[];
+  total_prize_pool: number;
+  status: string;
+}
+
 const GameResultsManager = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingResult, setEditingResult] = useState(null);
@@ -30,7 +39,7 @@ const GameResultsManager = () => {
   });
 
   const createResultMutation = useMutation({
-    mutationFn: async (newResult) => {
+    mutationFn: async (newResult: NewGameResult) => {
       const { data, error } = await supabase
         .from('game_results')
         .insert([newResult])
@@ -58,7 +67,7 @@ const GameResultsManager = () => {
   });
 
   const publishResultMutation = useMutation({
-    mutationFn: async (resultId) => {
+    mutationFn: async (resultId: string) => {
       const { data, error } = await supabase
         .from('game_results')
         .update({ 
@@ -81,21 +90,21 @@ const GameResultsManager = () => {
     }
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const calledNumbers = formData.get('calledNumbers')
+    const formData = new FormData(e.currentTarget);
+    const calledNumbers = (formData.get('calledNumbers') as string)
       .split(',')
       .map(n => parseInt(n.trim()))
       .filter(n => !isNaN(n));
 
-    const newResult = {
-      game_date: formData.get('gameDate'),
-      draw_number: parseInt(formData.get('drawNumber')),
+    const newResult: NewGameResult = {
+      game_date: formData.get('gameDate') as string,
+      draw_number: parseInt(formData.get('drawNumber') as string),
       called_numbers: calledNumbers,
       winning_cards: formData.get('winningCards') ? 
-        formData.get('winningCards').split(',').map(c => c.trim()) : [],
-      total_prize_pool: parseFloat(formData.get('prizePool')) || 0,
+        (formData.get('winningCards') as string).split(',').map(c => c.trim()) : [],
+      total_prize_pool: parseFloat(formData.get('prizePool') as string) || 0,
       status: 'pending'
     };
 

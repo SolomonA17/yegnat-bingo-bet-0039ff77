@@ -9,6 +9,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Users, TrendingUp } from 'lucide-react';
 
+interface NewGroup {
+  group_name: string;
+  total_cartelas: number;
+}
+
 const CartelaGroupsManager = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -28,7 +33,7 @@ const CartelaGroupsManager = () => {
   });
 
   const createGroupMutation = useMutation({
-    mutationFn: async (newGroup) => {
+    mutationFn: async (newGroup: NewGroup) => {
       const { data, error } = await supabase
         .from('cartela_groups')
         .insert([newGroup])
@@ -55,13 +60,13 @@ const CartelaGroupsManager = () => {
     }
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
+    const formData = new FormData(e.currentTarget);
     
     createGroupMutation.mutate({
-      group_name: formData.get('groupName'),
-      total_cartelas: parseInt(formData.get('totalCartelas')) || 0
+      group_name: formData.get('groupName') as string,
+      total_cartelas: parseInt(formData.get('totalCartelas') as string) || 0
     });
   };
 
