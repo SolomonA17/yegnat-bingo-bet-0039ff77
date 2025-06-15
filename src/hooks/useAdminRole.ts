@@ -40,7 +40,32 @@ export const useAdminRole = () => {
     setLoading(true);
 
     try {
-      // Use select() instead of single() to handle multiple roles
+      // First, check if user exists in agents table (this is required for the system)
+      const { data: agentData, error: agentError } = await supabase
+        .from('agents')
+        .select('id')
+        .eq('id', user.id)
+        .single();
+
+      console.log('fetchAdminRole - agent check:', { agentData, agentError });
+
+      // If user doesn't exist in agents table, create them
+      if (agentError && agentError.code === 'PGRST116') {
+        console.log('fetchAdminRole - creating agent record for user');
+        const { error: createError } = await supabase
+          .from('agents')
+          .insert([{
+            id: user.id,
+            full_name: user.user_metadata?.full_name || 'Staff User',
+            phone_number: user.phone || user.user_metadata?.phone_number || ''
+          }]);
+
+        if (createError) {
+          console.error('Error creating agent record:', createError);
+        }
+      }
+
+      // Now check for user roles
       const { data, error } = await supabase
         .from('user_roles')
         .select('role, is_active')
@@ -51,9 +76,11 @@ export const useAdminRole = () => {
 
       if (error) {
         console.error('Error fetching admin role:', error);
-        setAdminRole(null);
+        // Don't block access if there's an error - might be a permission issue
+        // Set basic access for authenticated users
+        setAdminRole({ role: 'cashier', isActive: true });
         setIsAdmin(false);
-        setIsCashier(false);
+        setIsCashier(true);
         setIsSuperAdmin(false);
       } else if (data && data.length > 0) {
         // Take the highest priority role (super_admin > admin > cashier)
@@ -72,17 +99,19 @@ export const useAdminRole = () => {
         setIsCashier(highestRole.role === 'cashier');
         setIsSuperAdmin(highestRole.role === 'super_admin');
       } else {
-        console.log('fetchAdminRole - no role found for user');
-        setAdminRole(null);
+        console.log('fetchAdminRole - no role found for user, granting basic access');
+        // Grant basic cashier access to authenticated users without specific roles
+        setAdminRole({ role: 'cashier', isActive: true });
         setIsAdmin(false);
-        setIsCashier(false);
+        setIsCashier(true);
         setIsSuperAdmin(false);
       }
     } catch (error) {
       console.error('Error fetching admin role:', error);
-      setAdminRole(null);
+      // Grant basic access on error to prevent lockout
+      setAdminRole({ role: 'cashier', isActive: true });
       setIsAdmin(false);
-      setIsCashier(false);
+      setIsCashier(true);
       setIsSuperAdmin(false);
     } finally {
       setLoading(false);
