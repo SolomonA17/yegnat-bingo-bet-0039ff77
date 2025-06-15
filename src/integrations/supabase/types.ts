@@ -444,6 +444,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_user_role: {
+        Args: {
+          p_user_id: string
+          p_role: Database["public"]["Enums"]["admin_role"]
+          p_assigned_by: string
+        }
+        Returns: boolean
+      }
       generate_card_number: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -495,7 +503,13 @@ export type Database = {
         | "failed"
         | "cancelled"
       transaction_type: "deposit" | "withdrawal" | "bet" | "win" | "refund"
-      user_type: "super_admin" | "admin" | "super_agent" | "shop"
+      user_type:
+        | "super_admin"
+        | "admin"
+        | "super_agent"
+        | "shop"
+        | "agent"
+        | "cashier"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -636,7 +650,14 @@ export const Constants = {
         "cancelled",
       ],
       transaction_type: ["deposit", "withdrawal", "bet", "win", "refund"],
-      user_type: ["super_admin", "admin", "super_agent", "shop"],
+      user_type: [
+        "super_admin",
+        "admin",
+        "super_agent",
+        "shop",
+        "agent",
+        "cashier",
+      ],
     },
   },
 } as const

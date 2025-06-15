@@ -10,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Users, Building, Search } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Plus, Users, Building, UserCheck, Wallet } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface NewUserAccount {
@@ -26,6 +27,7 @@ const UserAccountsManager = () => {
   const [activeTab, setActiveTab] = useState('super_agent');
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
 
   const { data: userAccounts, isLoading } = useQuery({
@@ -80,10 +82,10 @@ const UserAccountsManager = () => {
       if (agentError) throw agentError;
 
       // Then create the user account record linked to the agent
-      const { data, error } = await supabase
+      const { data: userAccountData, error: userAccountError } = await supabase
         .from('user_accounts')
         .insert([{
-          user_id: agentData.id, // Use the agent ID as the user_id
+          user_id: agentData.id,
           user_type: newAccount.user_type,
           assigned_super_agent: newAccount.assigned_super_agent,
           balance: parseFloat(newAccount.initial_balance) || 0
@@ -91,15 +93,39 @@ const UserAccountsManager = () => {
         .select()
         .single();
       
-      if (error) throw error;
-      return data;
+      if (userAccountError) throw userAccountError;
+
+      // Assign the appropriate role based on user type
+      let roleToAssign = null;
+      if (newAccount.user_type === 'super_agent') {
+        roleToAssign = 'admin';
+      } else if (newAccount.user_type === 'agent') {
+        roleToAssign = 'admin';
+      } else if (newAccount.user_type === 'cashier') {
+        roleToAssign = 'cashier';
+      }
+
+      if (roleToAssign && user) {
+        const { error: roleError } = await supabase.rpc('assign_user_role', {
+          p_user_id: agentData.id,
+          p_role: roleToAssign,
+          p_assigned_by: user.id
+        });
+
+        if (roleError) {
+          console.error('Error assigning role:', roleError);
+          // Don't throw here as the user account was created successfully
+        }
+      }
+
+      return userAccountData;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-accounts'] });
       setIsDialogOpen(false);
       toast({
         title: "Success",
-        description: "User account created successfully. Note: Authentication credentials will need to be set up separately.",
+        description: "User account and role created successfully. Note: Authentication credentials will need to be set up separately.",
       });
     },
     onError: (error) => {
@@ -130,6 +156,8 @@ const UserAccountsManager = () => {
 
   const userTypes = [
     { value: 'super_agent', label: 'Super Agents', icon: Users },
+    { value: 'agent', label: 'Agents', icon: UserCheck },
+    { value: 'cashier', label: 'Cashiers', icon: Wallet },
     { value: 'shop', label: 'Shops', icon: Building }
   ];
 
@@ -179,7 +207,7 @@ const UserAccountsManager = () => {
                 </Select>
               </div>
 
-              {activeTab === 'shop' && (
+              {(activeTab === 'shop' || activeTab === 'agent' || activeTab === 'cashier') && (
                 <div>
                   <label className="text-sm font-medium">Assign to Super Agent</label>
                   <Select name="assignedSuperAgent">
@@ -200,6 +228,16 @@ const UserAccountsManager = () => {
               <div>
                 <label className="text-sm font-medium">Initial Balance (ETB)</label>
                 <Input name="initialBalance" type="number" step="0.01" defaultValue="0" />
+              </div>
+
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  <strong>Role Assignment:</strong> 
+                  {activeTab === 'super_agent' && ' Admin role will be assigned'}
+                  {activeTab === 'agent' && ' Admin role will be assigned'}
+                  {activeTab === 'cashier' && ' Cashier role will be assigned'}
+                  {activeTab === 'shop' && ' No role will be assigned (shop account only)'}
+                </p>
               </div>
 
               <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -228,7 +266,7 @@ const UserAccountsManager = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-2 w-full max-w-md">
+        <TabsList className="grid grid-cols-4 w-full max-w-2xl">
           {userTypes.map((type) => (
             <TabsTrigger key={type.value} value={type.value} className="flex items-center gap-2">
               <type.icon className="w-4 h-4" />
