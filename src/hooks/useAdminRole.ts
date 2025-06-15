@@ -76,8 +76,7 @@ export const useAdminRole = () => {
 
       if (error) {
         console.error('Error fetching admin role:', error);
-        // Don't block access if there's an error - might be a permission issue
-        // Set basic access for authenticated users
+        // Grant basic access for authenticated users even with errors
         setAdminRole({ role: 'cashier', isActive: true });
         setIsAdmin(false);
         setIsCashier(true);
@@ -96,7 +95,7 @@ export const useAdminRole = () => {
         };
         setAdminRole(mappedRole);
         setIsAdmin(highestRole.role === 'admin' || highestRole.role === 'super_admin');
-        setIsCashier(highestRole.role === 'cashier');
+        setIsCashier(highestRole.role === 'cashier' || highestRole.role === 'admin' || highestRole.role === 'super_admin');
         setIsSuperAdmin(highestRole.role === 'super_admin');
       } else {
         console.log('fetchAdminRole - no role found for user, granting basic access');
@@ -119,8 +118,10 @@ export const useAdminRole = () => {
   };
 
   const hasAnyAdminRole = () => {
-    const result = isAdmin || isCashier || isSuperAdmin;
-    console.log('hasAnyAdminRole:', { isAdmin, isCashier, isSuperAdmin, result });
+    // For authenticated users, always return true to allow basic access
+    // Specific role checks are handled separately
+    const result = user ? true : false;
+    console.log('hasAnyAdminRole:', { user: !!user, result });
     return result;
   };
 

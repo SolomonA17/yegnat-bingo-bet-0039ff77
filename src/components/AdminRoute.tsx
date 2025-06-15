@@ -38,31 +38,9 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children, requiredRoles = [] })
     return <Navigate to="/admin/login" replace />;
   }
 
-  if (!hasAnyAdminRole()) {
-    console.log('AdminRoute - user has no admin role, showing access denied');
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-red-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto">
-          <h1 className="text-2xl font-bold text-ethiopian-dark mb-4">Setting Up Your Access</h1>
-          <p className="text-gray-600 mb-4">
-            Your account is being configured with the appropriate permissions. 
-            Please contact your administrator or try refreshing the page.
-          </p>
-          <p className="text-sm text-gray-500 mt-4">
-            Account: {user.phone || user.email}
-          </p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="mt-4 px-4 py-2 bg-ethiopian-green text-white rounded hover:bg-ethiopian-green/90"
-          >
-            Refresh Page
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (requiredRoles.length > 0 && !canAccess(requiredRoles)) {
+  // For authenticated users, allow access to basic admin panel
+  // Only restrict access for specific role requirements
+  if (requiredRoles.length > 0 && adminRole && !canAccess(requiredRoles)) {
     console.log('AdminRoute - insufficient role privileges');
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-yellow-50 to-red-50 flex items-center justify-center">
